@@ -59,4 +59,9 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         }
     }
 
+    public void addStudent(Student student) {
+        students.add(0, student);
+        notifyItemInserted(0);
+    }
+
 }

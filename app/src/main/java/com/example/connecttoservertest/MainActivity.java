@@ -1,5 +1,6 @@
 package com.example.connecttoservertest;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,10 +28,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final int ADD_STUDENT_RESPONSE = 1001;
+    private StudentAdapter studentAdapter;
+    private RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        List<Student> studentsInitial = new ArrayList<>();
+        studentAdapter = new StudentAdapter(studentsInitial);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -39,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         fab_main.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AddNewStudentActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, AddNewStudentActivity.class), ADD_STUDENT_RESPONSE);
             }
         });
 
@@ -68,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i(TAG, "onResponse: Students Not Found!");
                             }
 
-                            RecyclerView recyclerView = findViewById(R.id.rv_main);
+                            recyclerView = findViewById(R.id.rv_main);
                             recyclerView.setLayoutManager(new LinearLayoutManager(
                                     MainActivity.this,
                                     RecyclerView.VERTICAL,
                                     false
                             ));
-                            StudentAdapter studentAdapter = new StudentAdapter(studentsList);
+                            studentAdapter = new StudentAdapter(studentsList);
                             recyclerView.setAdapter(studentAdapter);
 
                         } catch (JSONException e) {
@@ -90,5 +96,17 @@ public class MainActivity extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == ADD_STUDENT_RESPONSE && resultCode == RESULT_OK && data != null) {
+            Student student = data.getParcelableExtra("student");
+            if (student != null) {
+                studentAdapter.addStudent(student);
+                recyclerView.smoothScrollToPosition(0);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
