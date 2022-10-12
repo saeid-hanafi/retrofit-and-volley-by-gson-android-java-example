@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">connect to server test</string>
     <string name="add_student">Add student</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="add_student_email">Email</string>
+    <string name="add_student_avatar">Avatar</string>
+    <string name="add_student_save">Save</string>
 </resources>
