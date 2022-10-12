@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">connect to server test</string>
+    <string name="add_student">Add student</string>
 </resources>

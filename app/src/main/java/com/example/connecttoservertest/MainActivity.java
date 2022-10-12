@@ -1,6 +1,9 @@
 package com.example.connecttoservertest;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://reqres.in/api/users?page=1",
                 new Response.Listener<String>() {
@@ -51,7 +57,15 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i(TAG, "onResponse: Students Not Found!");
                             }
 
-                            Log.i(TAG, "onResponse: "+studentsList);
+                            RecyclerView recyclerView = findViewById(R.id.rv_main);
+                            recyclerView.setLayoutManager(new LinearLayoutManager(
+                                    MainActivity.this,
+                                    RecyclerView.VERTICAL,
+                                    false
+                            ));
+                            StudentAdapter studentAdapter = new StudentAdapter(studentsList);
+                            recyclerView.setAdapter(studentAdapter);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
