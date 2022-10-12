@@ -31,12 +31,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int ADD_STUDENT_RESPONSE = 1001;
     private StudentAdapter studentAdapter;
     private RecyclerView recyclerView;
+    private ApiServices apiServices;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         List<Student> studentsInitial = new ArrayList<>();
         studentAdapter = new StudentAdapter(studentsInitial);
+        apiServices = new ApiServices(this);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -49,53 +51,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://reqres.in/api/users?page=1",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        List<Student> studentsList = new ArrayList<>();
-                        try {
-                            JSONObject data = new JSONObject(response);
-                            JSONArray studentsData = data.getJSONArray("data");
-                            int total = data.getInt("total");
-                            if (studentsData.length() > 0 && total > 0) {
-                                for (int i = 0; i < studentsData.length(); i++) {
-                                    JSONObject student = studentsData.getJSONObject(i);
-                                    Student students = new Student();
-                                    students.setId(student.getInt("id"));
-                                    students.setEmail(student.getString("email"));
-                                    students.setFirstName(student.getString("first_name"));
-                                    students.setLastName(student.getString("last_name"));
-                                    students.setAvatar(student.getString("avatar"));
-
-                                    studentsList.add(students);
-                                }
-                            }else{
-                                Log.i(TAG, "onResponse: Students Not Found!");
-                            }
-
-                            recyclerView = findViewById(R.id.rv_main);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(
-                                    MainActivity.this,
-                                    RecyclerView.VERTICAL,
-                                    false
-                            ));
-                            studentAdapter = new StudentAdapter(studentsList);
-                            recyclerView.setAdapter(studentAdapter);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        apiServices.getAllStudents(new ApiServices.getAllStudentsCallback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse: "+error.getMessage());
+            public void onSuccess(List<Student> students) {
+                recyclerView = findViewById(R.id.rv_main);
+                recyclerView.setLayoutManager(new LinearLayoutManager(
+                        MainActivity.this,
+                        RecyclerView.VERTICAL,
+                        false
+                ));
+                studentAdapter = new StudentAdapter(students);
+                recyclerView.setAdapter(studentAdapter);
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Log.e(TAG, "onError: "+error.getMessage());
             }
         });
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
     }
 
     @Override

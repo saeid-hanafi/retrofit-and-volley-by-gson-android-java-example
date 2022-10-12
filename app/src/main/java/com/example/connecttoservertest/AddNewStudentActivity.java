@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 public class AddNewStudentActivity extends AppCompatActivity {
     private static final String TAG = "AddNewStudentActivity";
+    private ApiServices apiServices;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +32,8 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.add_new_student_toolbar);
         setSupportActionBar(toolbar);
+
+        apiServices = new ApiServices(this);
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -49,50 +52,25 @@ public class AddNewStudentActivity extends AppCompatActivity {
                     emailEt != null && avatarEt != null) {
                     if (firstNameEt.length() > 0 && lastNameEt.length() > 0 &&
                         emailEt.length() > 0 && avatarEt.length() > 0) {
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("first_name", firstNameEt.getText().toString());
-                            jsonObject.put("last_name", lastNameEt.getText().toString());
-                            jsonObject.put("email", emailEt.getText().toString());
-                            jsonObject.put("avatar", avatarEt.getText().toString());
+                        String firstName = firstNameEt.getText().toString();
+                        String lastName = lastNameEt.getText().toString();
+                        String email = emailEt.getText().toString();
+                        String avatar = avatarEt.getText().toString();
 
-                            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                                    "https://reqres.in/api/users",
-                                    jsonObject,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            Log.i(TAG, "onResponse: "+ response);
-                                            Student student = new Student();
-                                            try {
-                                                student.setId(response.getInt("id"));
-                                                student.setFirstName(response.getString("first_name"));
-                                                student.setLastName(response.getString("last_name"));
-                                                student.setEmail(response.getString("email"));
-                                                student.setAvatar(response.getString("avatar"));
+                        apiServices.saveStudent(firstName, lastName, email, avatar, new ApiServices.saveStudentCallback() {
+                            @Override
+                            public void onSuccess(Student student) {
+                                Intent intent = new Intent();
+                                intent.putExtra("student", student);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
 
-                                                Intent intent = new Intent();
-                                                intent.putExtra("student", student);
-                                                setResult(RESULT_OK, intent);
-                                                finish();
-
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    },
-                                    new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            Log.e(TAG, "onErrorResponse: "+error.getMessage());
-                                        }
-                                    });
-
-                            RequestQueue requestQueue = Volley.newRequestQueue(AddNewStudentActivity.this);
-                            requestQueue.add(request);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                            @Override
+                            public void onError(VolleyError error) {
+                                Log.e(TAG, "onError: "+error.getMessage());
+                            }
+                        });
                     }else{
                         Snackbar.make(fabAddNewStudentSave, "All Fields Is Require2!", Snackbar.LENGTH_SHORT).show();
                     }
