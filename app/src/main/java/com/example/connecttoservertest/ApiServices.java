@@ -18,8 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ApiServices {
     private static final String TAG = "ApiServices";
@@ -42,59 +43,50 @@ public class ApiServices {
             jsonObject.put("email", email);
             jsonObject.put("avatar", avatar);
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+            GsonRequests<Student> gsonRequests = new GsonRequests<>(Request.Method.POST,
+                    Student.class,
                     STUDENT_API_URL,
                     jsonObject,
-                    new Response.Listener<JSONObject>() {
+                    new Response.Listener<Student>() {
                         @Override
-                        public void onResponse(JSONObject response) {
-                            Log.i(TAG, "onResponse: "+ response);
-                            Student student = gson.fromJson(response.toString(), Student.class);
-                            callback.onSuccess(student);
+                        public void onResponse(Student response) {
+                            callback.onSuccess(response);
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.e(TAG, "onErrorResponse: "+error.getMessage());
                             callback.onError(error);
                         }
-                    });
-
-            requestQueue.add(request);
+                    },
+                    null);
+            requestQueue.add(gsonRequests);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     public void getAllStudents(getAllStudentsCallback callback) {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, STUDENT_API_URL+"?page=1",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject data = new JSONObject(response);
-                            JSONArray studentsData = data.getJSONArray("data");
-                            int total = data.getInt("total");
-                            if (studentsData.length() > 0 && total > 0) {
-                                List<Student> studentsList = gson.fromJson(studentsData.toString(), new TypeToken<List<Student>>() {}.getType());
-                                callback.onSuccess(studentsList);
-                            }else{
-                                Log.i(TAG, "onResponse: Students Not Found!");
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse: "+error.getMessage());
-                callback.onError(error);
-            }
-        });
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
 
-        requestQueue.add(stringRequest);
+        GsonRequests<List<Student>> gsonRequests = new GsonRequests<>(Request.Method.GET,
+                new TypeToken<List<Student>>() {
+                }.getType(),
+                STUDENT_API_URL + "?page=1",
+                new Response.Listener<List<Student>>() {
+                    @Override
+                    public void onResponse(List<Student> response) {
+                        callback.onSuccess(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        callback.onError(error);
+                    }
+                },headers);
+        requestQueue.add(gsonRequests);
     }
 
     public interface saveStudentCallback {
