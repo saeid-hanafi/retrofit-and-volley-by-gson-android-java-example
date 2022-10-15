@@ -25,6 +25,7 @@ import org.json.JSONObject;
 public class AddNewStudentActivity extends AppCompatActivity {
     private static final String TAG = "AddNewStudentActivity";
     private ApiServices apiServices;
+    private RetrofitApiService retrofitApiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +35,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         apiServices = new ApiServices(this);
+        retrofitApiService = new RetrofitApiService();
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -57,9 +59,30 @@ public class AddNewStudentActivity extends AppCompatActivity {
                         String email = emailEt.getText().toString();
                         String avatar = avatarEt.getText().toString();
 
-                        apiServices.saveStudent(firstName, lastName, email, avatar, new ApiServices.saveStudentCallback() {
+                        /*
+                        Use Volley Library For Connect To API
+                        */
+//                        apiServices.saveStudent(firstName, lastName, email, avatar, new ApiServices.saveStudentCallback() {
+//                            @Override
+//                            public void onSuccess(Student student) {
+//                                Intent intent = new Intent();
+//                                intent.putExtra("student", student);
+//                                setResult(RESULT_OK, intent);
+//                                finish();
+//                            }
+//
+//                            @Override
+//                            public void onError(VolleyError error) {
+//                                Log.e(TAG, "onError: "+error.getMessage());
+//                            }
+//                        });
+
+                        /*
+                        Use Retrofit Library For Connect To API
+                        */
+                        retrofitApiService.saveStudent(firstName, lastName, email, avatar, new RetrofitApiService.saveStudentCallback() {
                             @Override
-                            public void onSuccess(Student student) {
+                            public void onRetrofitSuccess(Student student) {
                                 Intent intent = new Intent();
                                 intent.putExtra("student", student);
                                 setResult(RESULT_OK, intent);
@@ -67,7 +90,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onError(VolleyError error) {
+                            public void onRetrofitError(Exception error) {
                                 Log.e(TAG, "onError: "+error.getMessage());
                             }
                         });

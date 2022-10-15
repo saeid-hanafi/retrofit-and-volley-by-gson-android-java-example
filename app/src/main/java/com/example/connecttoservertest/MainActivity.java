@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private StudentAdapter studentAdapter;
     private RecyclerView recyclerView;
     private ApiServices apiServices;
+    private RetrofitApiService retrofitApiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         List<Student> studentsInitial = new ArrayList<>();
         studentAdapter = new StudentAdapter(studentsInitial);
         apiServices = new ApiServices(this);
+        retrofitApiService = new RetrofitApiService();
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -51,9 +53,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        apiServices.getAllStudents(new ApiServices.getAllStudentsCallback() {
+        /*
+        Use Volley Library For Connect To API
+         */
+//        apiServices.getAllStudents(new ApiServices.getAllStudentsCallback() {
+//            @Override
+//            public void onSuccess(List<Student> students) {
+//                recyclerView = findViewById(R.id.rv_main);
+//                recyclerView.setLayoutManager(new LinearLayoutManager(
+//                        MainActivity.this,
+//                        RecyclerView.VERTICAL,
+//                        false
+//                ));
+//                studentAdapter = new StudentAdapter(students);
+//                recyclerView.setAdapter(studentAdapter);
+//            }
+//
+//            @Override
+//            public void onError(VolleyError error) {
+//                Log.e(TAG, "onError: "+error.getMessage());
+//            }
+//        });
+
+        /*
+        Use Retrofit Library For Connect To API
+         */
+        retrofitApiService.getAllStudents(new RetrofitApiService.getAllStudentsCallback() {
             @Override
-            public void onSuccess(List<Student> students) {
+            public void onRetrofitSuccess(List<Student> students) {
                 recyclerView = findViewById(R.id.rv_main);
                 recyclerView.setLayoutManager(new LinearLayoutManager(
                         MainActivity.this,
@@ -65,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(VolleyError error) {
+            public void onRetrofitError(Exception error) {
                 Log.e(TAG, "onError: "+error.getMessage());
             }
         });
