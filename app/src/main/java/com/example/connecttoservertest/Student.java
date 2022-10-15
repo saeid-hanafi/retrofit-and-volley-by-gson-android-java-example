@@ -3,10 +3,15 @@ package com.example.connecttoservertest;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Student implements Parcelable {
     private int id;
     private String email;
+    @SerializedName("first_name")
     private String firstName;
+
+    @SerializedName("last_name")
     private String lastName;
     private String avatar;
 

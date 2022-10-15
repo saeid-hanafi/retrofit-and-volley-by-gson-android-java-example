@@ -1,11 +1,8 @@
 package com.example.connecttoservertest;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,6 +11,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,8 +25,10 @@ public class ApiServices {
     private static final String TAG = "ApiServices";
     private static final String STUDENT_API_URL = "https://reqres.in/api/users";
     private static RequestQueue requestQueue;
+    private Gson gson;
 
     public ApiServices(Context context){
+        this.gson = new Gson();
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(context.getApplicationContext());
         }
@@ -48,19 +49,8 @@ public class ApiServices {
                         @Override
                         public void onResponse(JSONObject response) {
                             Log.i(TAG, "onResponse: "+ response);
-                            Student student = new Student();
-                            try {
-                                student.setId(response.getInt("id"));
-                                student.setFirstName(response.getString("first_name"));
-                                student.setLastName(response.getString("last_name"));
-                                student.setEmail(response.getString("email"));
-                                student.setAvatar(response.getString("avatar"));
-
-                                callback.onSuccess(student);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            Student student = gson.fromJson(response.toString(), Student.class);
+                            callback.onSuccess(student);
                         }
                     },
                     new Response.ErrorListener() {
@@ -82,29 +72,16 @@ public class ApiServices {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        List<Student> studentsList = new ArrayList<>();
                         try {
                             JSONObject data = new JSONObject(response);
                             JSONArray studentsData = data.getJSONArray("data");
                             int total = data.getInt("total");
                             if (studentsData.length() > 0 && total > 0) {
-                                for (int i = 0; i < studentsData.length(); i++) {
-                                    JSONObject student = studentsData.getJSONObject(i);
-                                    Student students = new Student();
-                                    students.setId(student.getInt("id"));
-                                    students.setEmail(student.getString("email"));
-                                    students.setFirstName(student.getString("first_name"));
-                                    students.setLastName(student.getString("last_name"));
-                                    students.setAvatar(student.getString("avatar"));
-
-                                    studentsList.add(students);
-                                }
+                                List<Student> studentsList = gson.fromJson(studentsData.toString(), new TypeToken<List<Student>>() {}.getType());
+                                callback.onSuccess(studentsList);
                             }else{
                                 Log.i(TAG, "onResponse: Students Not Found!");
                             }
-
-                            callback.onSuccess(studentsList);
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
