@@ -63,25 +63,23 @@ public class AddNewStudentActivity extends AppCompatActivity {
         TextInputEditText avatarEt = findViewById(R.id.add_new_student_avatar_text);
 
         View fabAddNewStudentSave = findViewById(R.id.fab_addNewStudent_save);
-        fabAddNewStudentSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                lottieAnimationView.setVisibility(View.VISIBLE);
-                nestedScrollView.setVisibility(View.GONE);
-                fabSave.setVisibility(View.GONE);
+        fabAddNewStudentSave.setOnClickListener(v -> {
+            lottieAnimationView.setVisibility(View.VISIBLE);
+            nestedScrollView.setVisibility(View.GONE);
+            fabSave.setVisibility(View.GONE);
 
-                if (firstNameEt != null && lastNameEt != null &&
-                    emailEt != null && avatarEt != null) {
-                    if (firstNameEt.length() > 0 && lastNameEt.length() > 0 &&
-                        emailEt.length() > 0 && avatarEt.length() > 0) {
-                        String firstName = firstNameEt.getText().toString();
-                        String lastName = lastNameEt.getText().toString();
-                        String email = emailEt.getText().toString();
-                        String avatar = avatarEt.getText().toString();
+            if (firstNameEt != null && lastNameEt != null &&
+                emailEt != null && avatarEt != null) {
+                if (firstNameEt.length() > 0 && lastNameEt.length() > 0 &&
+                    emailEt.length() > 0 && avatarEt.length() > 0) {
+                    String firstName = firstNameEt.getText().toString();
+                    String lastName = lastNameEt.getText().toString();
+                    String email = emailEt.getText().toString();
+                    String avatar = avatarEt.getText().toString();
 
-                        /*
-                        Use Volley Library For Connect To API
-                        */
+                    /*
+                    Use Volley Library For Connect To API
+                    */
 //                        apiServices.saveStudent(firstName, lastName, email, avatar, new ApiServices.saveStudentCallback() {
 //                            @Override
 //                            public void onSuccess(Student student) {
@@ -97,46 +95,45 @@ public class AddNewStudentActivity extends AppCompatActivity {
 //                            }
 //                        });
 
-                        /*
-                        Use Retrofit Library For Connect To API
-                        */
-                        retrofitApiService.saveStudent(firstName, lastName, email, avatar)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new SingleObserver<Student>() {
-                                    @Override
-                                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                                        disposable = d;
-                                    }
+                    /*
+                    Use Retrofit Library For Connect To API
+                    */
+                    retrofitApiService.saveStudent(firstName, lastName, email, avatar)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new SingleObserver<Student>() {
+                                @Override
+                                public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                                    disposable = d;
+                                }
 
-                                    @Override
-                                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Student student) {
-                                        Intent intent = new Intent();
-                                        intent.putExtra("student", student);
-                                        setResult(RESULT_OK, intent);
-                                        finish();
-                                    }
+                                @Override
+                                public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Student student) {
+                                    Intent intent = new Intent();
+                                    intent.putExtra("student", student);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                }
 
-                                    @Override
-                                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                                        nestedScrollView.setVisibility(View.VISIBLE);
-                                        fabSave.setVisibility(View.VISIBLE);
-                                        lottieAnimationView.setVisibility(View.GONE);
-                                        Log.e(TAG, "onError: "+e.getMessage());
-                                    }
-                                });
-                    }else{
-                        nestedScrollView.setVisibility(View.VISIBLE);
-                        fabSave.setVisibility(View.VISIBLE);
-                        lottieAnimationView.setVisibility(View.GONE);
-                        Snackbar.make(fabAddNewStudentSave, "All Fields Is Require2!", Snackbar.LENGTH_SHORT).show();
-                    }
+                                @Override
+                                public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                    nestedScrollView.setVisibility(View.VISIBLE);
+                                    fabSave.setVisibility(View.VISIBLE);
+                                    lottieAnimationView.setVisibility(View.GONE);
+                                    Log.e(TAG, "onError: "+e.getMessage());
+                                }
+                            });
                 }else{
                     nestedScrollView.setVisibility(View.VISIBLE);
                     fabSave.setVisibility(View.VISIBLE);
                     lottieAnimationView.setVisibility(View.GONE);
-                    Snackbar.make(fabAddNewStudentSave, "All Fields Is Require1!", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(fabAddNewStudentSave, "All Fields Is Require2!", Snackbar.LENGTH_SHORT).show();
                 }
+            }else{
+                nestedScrollView.setVisibility(View.VISIBLE);
+                fabSave.setVisibility(View.VISIBLE);
+                lottieAnimationView.setVisibility(View.GONE);
+                Snackbar.make(fabAddNewStudentSave, "All Fields Is Require1!", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -148,5 +145,12 @@ public class AddNewStudentActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (disposable != null)
+            disposable.dispose();
     }
 }

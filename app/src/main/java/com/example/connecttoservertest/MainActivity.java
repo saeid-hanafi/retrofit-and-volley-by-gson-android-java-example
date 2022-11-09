@@ -61,12 +61,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ExtendedFloatingActionButton fab_main = findViewById(R.id.fab_main);
-        fab_main.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, AddNewStudentActivity.class), ADD_STUDENT_RESPONSE);
-            }
-        });
+        fab_main.setOnClickListener(v -> startActivityForResult(new Intent(MainActivity.this, AddNewStudentActivity.class), ADD_STUDENT_RESPONSE));
 
         /*
         Use Volley Library For Connect To API
