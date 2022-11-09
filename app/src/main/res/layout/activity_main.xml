@@ -17,10 +17,22 @@
             app:layout_scrollFlags="scroll|enterAlways"/>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/progress_bar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_gravity="center"
+        app:lottie_rawRes="@raw/progress_bar"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         android:paddingBottom="65dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
 
@@ -28,6 +40,7 @@
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:text="@string/add_student"
         app:icon="@drawable/ic_baseline_add_24"
         android:textColor="@color/white"

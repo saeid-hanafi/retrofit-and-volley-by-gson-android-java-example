@@ -16,7 +16,19 @@
             app:titleTextColor="@color/white"/>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/progress_bar_add_new_student"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        app:lottie_rawRes="@raw/progress_bar"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/add_new_student_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp"

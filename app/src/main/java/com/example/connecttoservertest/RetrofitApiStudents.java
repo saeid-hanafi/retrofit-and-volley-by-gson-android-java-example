@@ -2,6 +2,7 @@ package com.example.connecttoservertest;
 
 import com.google.gson.JsonObject;
 
+import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -12,8 +13,8 @@ import retrofit2.http.Query;
 public interface RetrofitApiStudents {
     @GET("api/users/")
 //    @Headers("Accept:application/json")
-    Call<JsonObject> getStudents(@Query("page") int page);
+    Single<JsonObject> getStudents(@Query("page") int page);
 
     @POST("api/users/")
-    Call<Student> saveStudent(@Body JsonObject body);
+    Single<Student> saveStudent(@Body JsonObject body);
 }
