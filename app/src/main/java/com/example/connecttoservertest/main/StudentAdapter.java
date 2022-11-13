@@ -1,4 +1,4 @@
-package com.example.connecttoservertest;
+package com.example.connecttoservertest.main;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.connecttoservertest.R;
+import com.example.connecttoservertest.model.Student;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

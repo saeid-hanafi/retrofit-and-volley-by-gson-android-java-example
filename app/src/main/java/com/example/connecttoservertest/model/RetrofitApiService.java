@@ -1,4 +1,4 @@
-package com.example.connecttoservertest;
+package com.example.connecttoservertest.model;
 
 import com.google.gson.JsonObject;
 

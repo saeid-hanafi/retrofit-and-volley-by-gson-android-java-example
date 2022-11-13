@@ -1,4 +1,4 @@
-package com.example.connecttoservertest;
+package com.example.connecttoservertest.main;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,12 +12,11 @@ import android.util.Log;
 import android.view.View;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.connecttoservertest.addStudent.AddNewStudentActivity;
+import com.example.connecttoservertest.R;
+import com.example.connecttoservertest.model.ApiServices;
+import com.example.connecttoservertest.model.RetrofitApiService;
+import com.example.connecttoservertest.model.Student;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -25,16 +24,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -44,9 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private StudentAdapter studentAdapter;
     private RecyclerView recyclerView;
     private ApiServices apiServices;
-    private RetrofitApiService retrofitApiService;
-    private Disposable disposable;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private MainViewModel mainViewModel;
     private Gson gson = new Gson();
+    private LottieAnimationView lottieAnimationView;
+    private ExtendedFloatingActionButton fabAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +53,10 @@ public class MainActivity extends AppCompatActivity {
         List<Student> studentsInitial = new ArrayList<>();
         studentAdapter = new StudentAdapter(studentsInitial);
         apiServices = new ApiServices(this);
-        retrofitApiService = new RetrofitApiService();
+        mainViewModel = new MainViewModel(new RetrofitApiService());
+        lottieAnimationView = findViewById(R.id.progress_bar_main);
+        fabAdd = findViewById(R.id.fab_main);
+        recyclerView = findViewById(R.id.rv_main);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -88,13 +89,21 @@ public class MainActivity extends AppCompatActivity {
         /*
         Use Retrofit Library For Connect To API
          */
-        retrofitApiService.getAllStudents()
+        compositeDisposable.add(mainViewModel.getProgressBar()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(status -> {
+                    lottieAnimationView.setVisibility(status?View.VISIBLE:View.GONE);
+                    fabAdd.setVisibility(status?View.GONE:View.VISIBLE);
+                    recyclerView.setVisibility(status?View.GONE:View.VISIBLE);
+                }));
+
+        mainViewModel.students()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<JsonObject>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-                        disposable = d;
+                        compositeDisposable.add(d);
                     }
 
                     @Override
@@ -104,12 +113,6 @@ public class MainActivity extends AppCompatActivity {
                                 JsonArray studentsData = jsonObject.getAsJsonArray("data");
                                 if (studentsData.size() > 0) {
                                     List<Student> students = gson.fromJson(studentsData.toString(), new TypeToken<List<Student>>() {}.getType());
-                                    LottieAnimationView lottieAnimationView = findViewById(R.id.progress_bar_main);
-                                    ExtendedFloatingActionButton fabAdd = findViewById(R.id.fab_main);
-                                    recyclerView = findViewById(R.id.rv_main);
-                                    lottieAnimationView.setVisibility(View.GONE);
-                                    fabAdd.setVisibility(View.VISIBLE);
-                                    recyclerView.setVisibility(View.VISIBLE);
 
                                     recyclerView.setLayoutManager(new LinearLayoutManager(
                                             MainActivity.this,
@@ -134,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "onError: "+e.getMessage());
                     }
                 });
+
     }
 
     @Override
@@ -151,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (disposable != null)
-            disposable.dispose();
+        if (compositeDisposable != null)
+            compositeDisposable.clear();
     }
 }

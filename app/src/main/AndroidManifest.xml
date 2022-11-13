@@ -15,7 +15,7 @@
         android:theme="@style/Theme.ConnectToServerTest"
         tools:targetApi="31">
         <activity
-            android:name=".AddNewStudentActivity"
+            android:name=".addStudent.AddNewStudentActivity"
             android:exported="false"
             android:label="Add New Student">
             <meta-data
@@ -23,7 +23,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
